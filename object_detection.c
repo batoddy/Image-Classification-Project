@@ -19,17 +19,17 @@
 #define dim 64
 #define len (dim * dim + 1)
 
-#define EPOCHS 50
-#define EPOCH_PRINT 20
+#define EPOCHS 100
+#define EPOCH_PRINT 5
 
 #define lr 0.001 // learning rate (n)
 #define W 0.001
 
-#define W1 -0.01
+#define W1 -0.004
 #define W2 -0.001
 #define W3 0.0001
 #define W4 0.001
-#define W5 0.001
+#define W5 0.004
 // SGD
 #define BACHES_SGD 5
 // ADAM
@@ -163,6 +163,7 @@ int main()
         sgd_weights[i] = sgd_optimization(loss_arr_SGD_dmy[i], time_arr_SGD_dmy[i], img_mtrx_car_train, img_mtrx_tank_train, init_weight_arr[i]);
         adam_weights[i] = adam_optimization(loss_arr_ADAM_dmy[i], time_arr_ADAM_dmy[i], img_mtrx_car_train, img_mtrx_tank_train, init_weight_arr[i]);
         // }
+
         write_weigths_to_file(init_weight_arr[i], gd_weights[i], sgd_weights[i], adam_weights[i], len);
     }
 
@@ -401,6 +402,8 @@ double *gradient_descent_optimization(double *loss_arr, uint64_t *time_arr, doub
     double error, loss, gradient, loss_sum;
     uint64_t tick, tick_c;
 
+    tick = getTick();
+
     double *x = malloc(len * sizeof(double));
     if (x == NULL)
     {
@@ -421,7 +424,6 @@ double *gradient_descent_optimization(double *loss_arr, uint64_t *time_arr, doub
         // print_vector(w, len);
         // printf("\n\n\n");
         loss_sum = 0;
-        // tick = getTick();
         // printf("Tick1:%d ", getTick());
         for (int i = 0; i < (TRAIN_DATA_NBR * 2); i++)
         {
@@ -454,7 +456,7 @@ double *gradient_descent_optimization(double *loss_arr, uint64_t *time_arr, doub
             // printf("%d-%d: x[%d]:%f, w[%d]:%f, y: %.2f, err:%f\n\n", epoch, i, i, x[i], i, w[i], y, error);
             // printf("Input: %lf == %lf\n", t, y);
         }
-        tick_c = getTick();
+        tick_c = getTick() - tick;
 
         if (epoch % EPOCH_PRINT == 0 || epoch == 0)
             printf("GD ||\tepoch(%d/%d) | loss:%lf init_weight: %lf - Tick: %d\n", epoch, EPOCHS, loss_sum / (TRAIN_DATA_NBR * 2), init_weight, tick_c);
@@ -490,6 +492,7 @@ double *sgd_optimization(double *loss_arr, uint64_t *time_arr, double **car_matr
     // }
 
     fill_parameters(w, init_weight, len);
+    tick = getTick();
 
     for (int epoch = 1; epoch <= EPOCHS; epoch++)
     {
@@ -497,7 +500,6 @@ double *sgd_optimization(double *loss_arr, uint64_t *time_arr, double **car_matr
         // print_vector(w, len);
         // printf("\n\n\n");
         loss_sum = 0;
-        // tick = getTick();
         // printf("Tick1:%d ", getTick());
         for (int i = 0; i < (TRAIN_DATA_NBR * 2); i++)
         {
@@ -541,7 +543,7 @@ double *sgd_optimization(double *loss_arr, uint64_t *time_arr, double **car_matr
                 loss_sum_bached = 0;                      // Batch için loss toplamını sıfırla
             }
         }
-        tick_c = getTick();
+        tick_c = getTick() - tick;
         if (epoch % EPOCH_PRINT == 0 || epoch == 0)
             printf("SGD ||\tepoch(%d/%d) | loss:%lf init_weight: %lf Tick:%d\n", epoch, EPOCHS, loss_sum / (TRAIN_DATA_NBR * 2), init_weight, tick_c);
 
@@ -570,13 +572,14 @@ double *adam_optimization(double *loss_arr, uint64_t *time_arr, double **car_mat
     // n*n+1
     fill_parameters(w, init_weight, len);
 
+    tick = getTick();
+
     for (int epoch = 1; epoch <= EPOCHS; epoch++)
     {
         // printf("w[%d]: ", epoch);
         // print_vector(w, len);
         // printf("\n\n\n");
         loss_sum = 0;
-        // tick = getTick();
         // printf("Tick1:%d ", getTick());
         for (int i = 0; i < (TRAIN_DATA_NBR * 2); i++)
         {
@@ -615,7 +618,7 @@ double *adam_optimization(double *loss_arr, uint64_t *time_arr, double **car_mat
             // printf("%d-%d: x[%d]:%f, w[%d]:%f, y: %.2f, err:%f\n\n", epoch, i, i, x[i], i, w[i], y, error);
             // printf("Input: %lf == %lf\n", t, y);
         }
-        tick_c = getTick();
+        tick_c = getTick() - tick;
 
         if (epoch % EPOCH_PRINT == 0 || epoch == 0)
             printf("ADAM ||\tepoch(%d/%d) | loss:%lf init_weight: %lf Tick:%d\n", epoch, EPOCHS, loss_sum / (TRAIN_DATA_NBR * 2), init_weight, tick_c);
@@ -723,7 +726,7 @@ void write_train_data_to_file(char *file_name, double gd_loss[EPOCHS][5], double
     for (int i = 1; i <= n; i++)
     {
         // epoch,gd_loss,sgd_loss,adam_loss,gd_time,sgd_time,adam_time
-        sprintf(string, "%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", i, gd_loss[i][0], sgd_loss[i][0], adam_loss[i][0], gd_loss[i][1], sgd_loss[i][1], adam_loss[i][1], gd_loss[i][2], sgd_loss[i][2], adam_loss[i][2], gd_loss[i][3], sgd_loss[i][3], adam_loss[i][3], gd_loss[i][4], sgd_loss[i][4], adam_loss[i][4], gd_loss[i][5], sgd_loss[i][5], adam_loss[i][5], gd_time[i][0], sgd_time[i][0], adam_time[i][0], gd_time[i][1], sgd_time[i][1], adam_time[i][1], gd_time[i][2], sgd_time[i][2], adam_time[i][2], gd_time[i][3], sgd_time[i][3], adam_time[i][3], gd_time[i][4], sgd_time[i][4], adam_time[i][4], gd_time[i][5], sgd_time[i][5], adam_time[i][5]);
+        sprintf(string, "%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", i, gd_loss[i][0], sgd_loss[i][0], adam_loss[i][0], gd_loss[i][1], sgd_loss[i][1], adam_loss[i][1], gd_loss[i][2], sgd_loss[i][2], adam_loss[i][2], gd_loss[i][3], sgd_loss[i][3], adam_loss[i][3], gd_loss[i][4], sgd_loss[i][4], adam_loss[i][4], gd_time[0][i], sgd_time[0][i], adam_time[0][i], gd_time[1][i], sgd_time[1][i], adam_time[1][i], gd_time[2][i], sgd_time[2][i], adam_time[2][i], gd_time[3][i], sgd_time[3][i], adam_time[3][i], gd_time[4][i], sgd_time[4][i], adam_time[4][i]);
         fwrite(string, sizeof(char), strlen(string), fp);
     }
     fclose(fp);
