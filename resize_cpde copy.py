@@ -3,12 +3,10 @@ import os
 
 # Giriş ve çıkış dizinlerini tanımla
 input_dirs = [
-    "rock-scissors-paper/rps/rps/rock",
-    "rock-scissors-paper/rps/rps/scissors",
-    "rock-scissors-paper/rps-test-set/rps-test-set/rock",
-    "rock-scissors-paper/rps-test-set/rps-test-set/scissors",
+    "20_20/0",
+    "20_20/1",
 ]
-output_dir = "rock-scissors-paper/resized"
+output_dir = "20_20/resized"
 
 # Çıkış dizinini oluştur
 os.makedirs(output_dir, exist_ok=True)
@@ -46,7 +44,7 @@ def resize_images(input_dir, output_subdir, size=(32, 32)):
 
 
 # Tüm dizinler için işlemi başlat
-subdirs = ["train/rock", "train/scissors", "test/rock", "test/scissors"]
+subdirs = ["train/0", "train/1", "test/0", "test/1"]
 
 for input_dir, subdir in zip(input_dirs, subdirs):
     resize_images(input_dir, subdir, size=(32, 32))
