@@ -14,7 +14,7 @@
 #include "stb_image.h" // reading jpg image library
 
 // #define INFO
-#define TEST_INFO
+// #define TEST_INFO
 // defines
 #define dim 64              // image dimension
 #define len (dim * dim + 1) // n*n+1
